@@ -34,7 +34,7 @@ public class SockServiceImpl implements SockService {
             socks.put(sock, value);
             return value;
         } else {
-            throw new SockNotFoundException("Товар не найден");
+            throw new SockNotFoundException("Нет столько товара на складе!");
         }
     }
 

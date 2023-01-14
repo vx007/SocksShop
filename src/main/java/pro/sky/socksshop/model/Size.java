@@ -6,6 +6,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum Size {
+    XXXS(29),
+    XXS(31),
+    XS(33),
     S(35),
     M(37),
     L(39),

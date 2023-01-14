@@ -2,6 +2,7 @@ package pro.sky.socksshop.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pro.sky.socksshop.exception.SockBadParamException;
 import pro.sky.socksshop.model.Color;
 import pro.sky.socksshop.model.Size;
 import pro.sky.socksshop.model.Sock;
@@ -10,8 +11,8 @@ import pro.sky.socksshop.service.SockService;
 @RestController
 @RequestMapping(value = "/api/socks")
 public class SockController {
-
     private final SockService sockService;
+    private final String BADPARAMS = "Неверные параметры!";
 
     public SockController(SockService sockService) {
         this.sockService = sockService;
@@ -22,10 +23,9 @@ public class SockController {
                                           @RequestParam int size,
                                           @RequestParam int cottonPart,
                                           @RequestParam int quantity) {
-        if (size < Size.S.getValue() || size > Size.XXXL.getValue() || cottonPart < 0 || cottonPart > 100 || quantity <= 0) {
-            return ResponseEntity.badRequest().build();
-        }
-        int value = sockService.add(new Sock(color, size, cottonPart), quantity);
+        validate(size, cottonPart, quantity);
+        Sock sock = new Sock(color, size, cottonPart);
+        int value = sockService.add(sock, quantity);
         return ResponseEntity.ok().body(value);
     }
 
@@ -34,18 +34,20 @@ public class SockController {
                                         @RequestParam int size,
                                         @RequestParam(required = false) Integer cottonMin,
                                         @RequestParam(required = false) Integer cottonMax) {
-        if (size < Size.S.getValue() || size > Size.XXXL.getValue()) {
-            return ResponseEntity.badRequest().build();
+        if (size < Size.XXXS.getValue() || size > Size.XXXL.getValue()) {
+            throw new SockBadParamException(BADPARAMS);
         }
         if (cottonMin == null && cottonMax == null) {
-            return ResponseEntity.badRequest().build();
+            throw new SockBadParamException(BADPARAMS);
         }
         if (cottonMin != null && cottonMax == null && cottonMin > 0 && cottonMin <= 100) {
-            int value = sockService.getMin(new Sock(color, size, cottonMin));
+            Sock sock = new Sock(color, size, cottonMin);
+            int value = sockService.getMin(sock);
             return ResponseEntity.ok().body(value);
         }
         if (cottonMax != null && cottonMin == null && cottonMax > 0 && cottonMax <= 100) {
-            int value = sockService.getMax(new Sock(color, size, cottonMax));
+            Sock sock = new Sock(color, size, cottonMax);
+            int value = sockService.getMax(sock);
             return ResponseEntity.ok().body(value);
         }
         return ResponseEntity.badRequest().build();
@@ -57,10 +59,9 @@ public class SockController {
                                           @RequestParam int size,
                                           @RequestParam int cottonPart,
                                           @RequestParam int quantity) {
-        if (size < Size.S.getValue() || size > Size.XXXL.getValue() || cottonPart < 0 || cottonPart > 100 || quantity <= 0) {
-            return ResponseEntity.badRequest().build();
-        }
-        int value = sockService.remove(new Sock(color, size, cottonPart), quantity);
+        validate(size, cottonPart, quantity);
+        Sock sock = new Sock(color, size, cottonPart);
+        int value = sockService.remove(sock, quantity);
         return ResponseEntity.ok().body(value);
     }
 
@@ -69,10 +70,15 @@ public class SockController {
                                           @RequestParam int size,
                                           @RequestParam int cottonPart,
                                           @RequestParam int quantity) {
-        if (size < Size.S.getValue() || size > Size.XXXL.getValue() || cottonPart < 0 || cottonPart > 100 || quantity <= 0) {
-            return ResponseEntity.badRequest().build();
-        }
-        int value = sockService.remove(new Sock(color, size, cottonPart), quantity);
+        validate(size, cottonPart, quantity);
+        Sock sock = new Sock(color, size, cottonPart);
+        int value = sockService.remove(sock, quantity);
         return ResponseEntity.ok().body(value);
+    }
+
+    private void validate(int size, int cottonPart, int quantity) {
+        if (size < Size.XXXS.getValue() || size > Size.XXXL.getValue() || cottonPart < 0 || cottonPart > 100 || quantity <= 0) {
+            throw new SockBadParamException(BADPARAMS);
+        }
     }
 }
