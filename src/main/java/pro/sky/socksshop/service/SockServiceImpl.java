@@ -12,7 +12,7 @@ public class SockServiceImpl implements SockService {
     private static final Map<Sock, Integer> socks = new HashMap<>();
 
     @Override
-    public int add(Sock sock, Integer quantity) {
+    public int add(Sock sock, int quantity) {
         if (socks.containsKey(sock)) {
             int value = socks.get(sock) + quantity;
             socks.put(sock, value);
@@ -24,7 +24,7 @@ public class SockServiceImpl implements SockService {
     }
 
     @Override
-    public int remove(Sock sock, Integer quantity) throws SockNotFoundException {
+    public int remove(Sock sock, int quantity) throws SockNotFoundException {
         if (socks.containsKey(sock)) {
             int value = socks.get(sock) - quantity;
             if (value <= 0) {
